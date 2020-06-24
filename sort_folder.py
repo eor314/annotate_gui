@@ -60,7 +60,13 @@ class ImageGui:
         self.image = None
         self.image_panel = tk.Label(frame)
 
-        # set image container to first image
+        # set image container to first image or stopping point
+        # check if an out_file is defined
+        if self.out_file:
+            # if it is see if there are already annotations in the desired files
+            if os.path.exists(os.path.join(self.out_file, self.labels[0]+'.txt')):
+                self.index = self._restart_from_file(self.labels, self.out_file)
+
         self.set_image(paths[self.index])
 
         # Make buttons
@@ -210,6 +216,7 @@ class ImageGui:
         :return:
         """
         output_dict[label].append(input_path)
+        print(" %s --> %s" % (os.path.basename(input_path), label))
         #print(output_dict[label])
 
     @staticmethod
@@ -226,6 +233,23 @@ class ImageGui:
         print(" %s --> %s" % (file_name, label))
         move(input_path, output_path)
 
+    @staticmethod
+    def _restart_from_file(labs, ptf):
+        """
+        Checks where in a label effort you are
+        :param labels: list of labels
+        :param ptf: the path were the output folders are
+        :return: index of image to start on
+        """
+
+        temp = [os.path.join(ptf, item+'.txt') for item in labels]
+        tot = 0
+        for lab in temp:
+            with open(lab, 'r') as fobj:
+                tot += sum(1 for line in fobj)
+                fobj.close()
+        print('total in files', tot)
+        return tot
 
 def make_folder(directory):
     """
