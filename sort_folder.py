@@ -110,6 +110,9 @@ class ImageGui:
         if self.index < self.n_paths:
             self.set_image(self.paths[self.index])
         else:
+            # save the labels at the end
+            if self.out_file:
+                self.save()
             self.master.quit()
 
     def set_image(self, path):
@@ -248,7 +251,6 @@ class ImageGui:
             with open(lab, 'r') as fobj:
                 tot += sum(1 for line in fobj)
                 fobj.close()
-        print('total in files', tot)
         return tot
 
 def make_folder(directory):
