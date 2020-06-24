@@ -24,12 +24,13 @@ class ImageGui:
     Useful, for sorting views into sub views or for removing outliers from the data.
     """
 
-    def __init__(self, master, labels, paths):
+    def __init__(self, master, labels, paths, out_dict=False):
         """
         Initialise GUI
         :param master: The parent window
         :param labels: A list of labels that are associated with the images
         :param paths: A list of file paths to images
+        :param out_dict: A switch between copying images and saving a text output
         :return:
         """
 
@@ -46,6 +47,7 @@ class ImageGui:
         self.index = 0
         self.paths = paths
         self.labels = labels
+        self.out_dict = out_dict
 
         # Number of labels and paths
         self.n_labels = len(labels)
@@ -114,7 +116,10 @@ class ImageGui:
         :param label: The label that the user voted for
         """
         input_path = self.paths[self.index]
-        self._copy_image(input_path, label)
+        if self.out_dict:
+            self._add_to_dict(self.out_dict, input_path, label)
+        else:
+            self._copy_image(input_path, label)
         self.show_next_image()
 
     def vote_key(self, event):
@@ -176,6 +181,18 @@ class ImageGui:
         print(" %s --> %s" % (file_name, label))
         copyfile(input_path, output_path)
         #os.symlink(input_path, output_path)
+
+    @staticmethod
+    def _add_to_dict(output_dict, input_path, label):
+        """
+        Adds a file path to the appropriate field in the output dictrionary
+        :param output_dict: dictionary for holding labels
+        :param input_path: path of image that was classified
+        :param label: the assigned label
+        :return:
+        """
+        output_dict[label].append(input_path)
+        print(output_dict[label])
 
     @staticmethod
     def _move_image(input_path, label):
@@ -250,5 +267,8 @@ if __name__ == "__main__":
     # Start the GUI
     root = tk.Tk()
     #root.geometry("1000x1000")
-    app = ImageGui(root, labels, paths)
+    if outdict:
+        app = ImageGui(root, labels, paths, out_dict=outdict)
+    else:
+        app = ImageGui(root, labels, paths)
     root.mainloop()
