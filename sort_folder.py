@@ -24,13 +24,14 @@ class ImageGui:
     Useful, for sorting views into sub views or for removing outliers from the data.
     """
 
-    def __init__(self, master, labels, paths, out_dict=False):
+    def __init__(self, master, labels, paths, out_dict=False, out_file=False):
         """
         Initialise GUI
         :param master: The parent window
         :param labels: A list of labels that are associated with the images
         :param paths: A list of file paths to images
-        :param out_dict: A switch between copying images and saving a text output
+        :param out_dict: A switch between copying images and saving a text
+        :param out_file: where to save image lists
         :return:
         """
 
@@ -48,6 +49,7 @@ class ImageGui:
         self.paths = paths
         self.labels = labels
         self.out_dict = out_dict
+        self.out_file = out_file
 
         # Number of labels and paths
         self.n_labels = len(labels)
@@ -82,6 +84,10 @@ class ImageGui:
 
         # Place the image in grid
         self.image_panel.grid(row=1, column=0, columnspan=self.n_labels+1, sticky='we')
+
+        # add a save button at bottom
+        self.save_button = tk.Button(frame, text='save', width=10, height=1, command=lambda: self.save())
+        self.save_button.grid(row=3, column=0, columnspan=2, stick='we')
 
         # key bindings (so number pad can be used as shortcut)
         for key in range(self.n_labels):
@@ -130,6 +136,18 @@ class ImageGui:
         pressed_key = int(event.char)
         label = self.labels[pressed_key-1]
         self.vote(label)
+
+    def save(self):
+        """
+        Save the output dictionary
+        """
+        for kk in self.out_dict.keys():
+            temp = os.path.join(self.out_file, kk+'.txt')
+            with open(temp, 'w') as fobj:
+                for line in self.out_dict[kk]:
+                    fobj.write(os.path.basename(line) + '\n')
+                fobj.close()
+            print('saved', temp)
 
     @staticmethod
     def _load_image(path, size=(800, 600)):
@@ -192,7 +210,7 @@ class ImageGui:
         :return:
         """
         output_dict[label].append(input_path)
-        print(output_dict[label])
+        #print(output_dict[label])
 
     @staticmethod
     def _move_image(input_path, label):
@@ -268,7 +286,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     #root.geometry("1000x1000")
     if outdict:
-        app = ImageGui(root, labels, paths, out_dict=outdict)
+        app = ImageGui(root, labels, paths, out_dict=outdict, out_file=input_folder)
     else:
         app = ImageGui(root, labels, paths)
     root.mainloop()
