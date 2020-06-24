@@ -207,23 +207,45 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--folder', help='Input folder where the *tif images should be', required=True)
     parser.add_argument('-l', '--labels', nargs='+', help='Possible labels in the images', required=True)
+    parser.add_argument('-t', '--textfile', help='text file name if sorting classifier output', required=False)
+    parser.add_argument('-o', '--output', help='format of output', default='copy', choices=['copy', 'txt'])
+    parser.add_argument('-i', '--image_folder', help='if using list of images, path where actual images live', required=False)
     args = parser.parse_args()
 
     # grab input arguments from args structure
     input_folder = args.folder
     labels = args.labels
+    oput = args.output
+    txt = args.textfile
+    imgfold = args.image_folder
 
     # Make folder for the new labels
-    for label in labels:
-        make_folder(os.path.join(input_folder, label))
+    if oput == 'copy':
+        for label in labels:
+            make_folder(os.path.join(input_folder, label))
+
+    else:
+        # make a dictionary for printing to file later
+        outdict = dict()
+
+        # make a new key for each label
+        for label in labels:
+            outdict[label] = []
 
     # Put all image file paths into a list
-    paths = []
-    for file in os.listdir(input_folder):
-        if file.endswith(".jpeg") or file.endswith(".tiff") or file.endswith(".jpg"):
+    if not txt:
+        paths = []
+        for file in os.listdir(input_folder):
+            if file.endswith(".jpeg") or file.endswith(".tiff") or file.endswith(".jpg"):
 
-            path = os.path.join(input_folder, file)
-            paths.append(path)
+                path = os.path.join(input_folder, file)
+                paths.append(path)
+    else:
+        with open(os.path.join(input_folder, txt), 'r') as ff:
+            paths = list(ff)
+            ff.close()
+
+        paths = [os.path.join(imgfold, line.strip()) for line in paths]
 
     # Start the GUI
     root = tk.Tk()
