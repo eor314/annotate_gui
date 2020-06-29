@@ -9,7 +9,7 @@
 
  Version 2.0
  Author: Eric Orenstein
- Date: Mar 24 2020
+ Date: June 24 2020
 """
 
 import argparse
@@ -152,11 +152,18 @@ class ImageGui:
         """
         for kk in self.out_dict.keys():
             temp = os.path.join(self.out_file, kk+'.txt')
-            with open(temp, 'w') as fobj:
-                for line in self.out_dict[kk]:
-                    fobj.write(os.path.basename(line) + '\n')
-                fobj.close()
-            print('saved', temp)
+            if os.path.exists(temp):
+                with open(temp, 'a') as fobj:
+                    for line in self.out_dict[kk]:
+                        fobj.write(os.path.basename(line) + '\n')
+                    fobj.close()
+            else:
+                with open(temp, 'w') as fobj:
+                    for line in self.out_dict[kk]:
+                        fobj.write(os.path.basename(line) + '\n')
+                    fobj.close()
+            print('saved', len(self.out_dict[kk]), 'files to', temp)
+            self.out_dict[kk] = []  # clear the output list for continuation
 
     @staticmethod
     def _load_image(path, size=(800, 600)):
