@@ -18,6 +18,7 @@ import os
 from shutil import copyfile, move
 from PIL import ImageTk, Image, ImageOps
 
+
 class ImageGui:
     """
     GUI for iFind1 image sorting. This draws the GUI and handles all the events.
@@ -114,7 +115,8 @@ class ImageGui:
         :param label: The label that the user voted for
         """
         input_path = self.paths[self.index]
-        self._copy_image(input_path, label)
+        #self._copy_image(input_path, label)
+        self._move_image(input_path, label)
         self.show_next_image()
 
     def vote_key(self, event):
@@ -200,6 +202,7 @@ def make_folder(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
+
 # The main bit of the script only gets exectured if it is directly called
 if __name__ == "__main__":
 
@@ -215,7 +218,8 @@ if __name__ == "__main__":
 
     # Make folder for the new labels
     for label in labels:
-        make_folder(os.path.join(input_folder, label))
+        if not os.path.exists(os.path.join(input_folder, label)):
+            make_folder(os.path.join(input_folder, label))
 
     # Put all image file paths into a list
     paths = []
